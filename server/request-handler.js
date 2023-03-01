@@ -22,15 +22,44 @@ var requestHandler = function(request, response) {
   // Documentation for both request and response can be found in the HTTP section at
   // http://nodejs.org/documentation/api/
 
+  // let data = request.data;
+  // let reqHeader = request.headers;
+  // let reqURL = request.url;
+
+  // execute if request method is a GET or POST
+
+  if (request.method === 'GET' || request.method === 'POST') {
+    let body = [];
+    request.on('error', (err) => {
+      console.log('new error: ', err);
+    // grabbing data out of request
+    }).on('data', (data) => {
+      // console.log('request data', data);
+      body.push(data);
+      // console.log('request data pushed to body: ', body);
+    }).on('end', () => {
+      body = Buffer.concat(body).toString();
+      // console.log('request body after Buffer: ', body);
+    });
+  }
+
+  // start of response
+  response.on('error', (err) => {
+    console.log('response error: ', err);
+  });
   // Do some basic logging.
   //
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
+  // console.log('request url', reqURL);
 
   // The outgoing status.
   var statusCode = 200;
+  if (request.method === 'POST') {
+    statusCode = 201;
+  }
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -52,7 +81,7 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  response.end(JSON.stringify([]));
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -70,3 +99,5 @@ var defaultCorsHeaders = {
   'access-control-allow-headers': 'content-type, accept, authorization',
   'access-control-max-age': 10 // Seconds.
 };
+
+exports.requestHandler = requestHandler;
